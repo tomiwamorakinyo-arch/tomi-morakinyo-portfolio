@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tomi Morakinyo</title>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&family=Barlow:ital,wght@0,300;0,400;0,700;1,400;1,700&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* RESET & TOKENS */
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--color-black:#111;--color-white:#fff;--color-gray:#888;--color-rule:#e4e4e4;--font-display:'Big Shoulders Display',sans-serif;--font-body:'Barlow',Helvetica,sans-serif}
+    html,body{height:100%}
+    body{background:var(--color-white);color:var(--color-black);font-family:var(--font-body);font-size:12px;-webkit-font-smoothing:antialiased;cursor:none;overflow:hidden}
+
+    /* CUSTOM CURSOR */
+    #cursor-dice{position:fixed;width:26px;height:26px;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .18s,height .18s,opacity .2s;filter:drop-shadow(0 1px 3px rgba(0,0,0,.12))}
+    #cursor-dice.enlarged{width:38px;height:38px}
+    #cursor-dice.faded{opacity:.3}
+
+    /* NAV HOME */
+    #nav-home{position:fixed;top:0;left:0;right:0;z-index:500;display:grid;grid-template-columns:1fr 1fr;padding:22px 28px 0;pointer-events:none}
+    #nav-home a{pointer-events:auto;cursor:none;text-decoration:none;font-family:var(--font-display);font-weight:900;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-black);transition:color .15s}
+    #nav-home a:hover{color:var(--color-gray)}
+    .nav-home-left{display:flex;gap:18px;align-items:center}
+    .nav-home-right{display:flex;gap:18px;align-items:center;justify-content:flex-end}
+
+    /* NAV INNER */
+    #nav-inner{position:fixed;top:0;left:0;right:0;z-index:500;height:48px;display:none;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 28px;background:var(--color-white);border-bottom:1px solid var(--color-rule)}
+    .nav-inner-left{display:flex;gap:18px;align-items:center}
+    .nav-inner-right{display:flex;gap:18px;align-items:center;justify-content:flex-end}
+    #nav-inner a,#nav-inner button{font-family:var(--font-display);font-weight:900;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-gray);text-decoration:none;background:none;border:none;cursor:none;transition:color .15s}
+    #nav-inner a:hover,#nav-inner button:hover{color:var(--color-black)}
+    #nav-inner a.active{color:var(--color-black)}
+    .nav-inner-center a{font-family:var(--font-display);font-weight:900;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--color-black);text-decoration:none;cursor:none}
+
+    /* PAGE HOME */
+    #page-home{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden}
+    .home-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:clamp(44px,6vh,72px);text-align:center;overflow:hidden}
+    #home-name{font-family:var(--font-display);font-weight:900;font-size:clamp(48px,10.5vw,180px);line-height:.9;letter-spacing:-.01em;text-transform:uppercase;white-space:nowrap}
+    #home-tagline{margin-top:clamp(8px,1.4vh,18px);font-family:var(--font-body);font-weight:700;font-style:italic;font-size:clamp(12px,1.3vw,17px);letter-spacing:.01em;color:var(--color-black)}
+
+    /* PHOTO STRIP */
+    #strip-outer{width:100%;flex-shrink:0;overflow-x:auto;overflow-y:visible;scrollbar-width:none}
+    #strip-outer::-webkit-scrollbar{display:none}
+    #strip{display:flex;align-items:flex-end;gap:8px;padding:0 28px;width:max-content}
+    .strip-thumb{position:relative;flex-shrink:0;overflow:hidden;cursor:none;transition:transform .42s cubic-bezier(.25,.46,.45,.94)}
+    .strip-thumb:hover{transform:translateY(-20px)}
+    .strip-thumb:hover .strip-overlay{opacity:1}
+    .strip-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .strip-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.58) 0%,transparent 55%);display:flex;align-items:flex-end;padding:10px;opacity:0;transition:opacity .28s;pointer-events:none}
+    .strip-overlay-title{font-family:var(--font-display);font-weight:900;font-size:clamp(10px,1.3vw,16px);letter-spacing:.04em;text-transform:uppercase;color:#fff;line-height:1.1}
+    .strip-overlay-sub{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.7);margin-top:2px}
+
+    /* PAGE WORK */
+    #page-work{display:none;flex-direction:column;height:100%;overflow:hidden}
+    .filter-bar{display:flex;padding:0 28px;border-bottom:1px solid var(--color-rule);flex-shrink:0;margin-top:48px}
+    .filter-btn{font-family:var(--font-body);font-weight:400;font-size:12px;letter-spacing:.06em;padding:11px 0;margin-right:24px;background:none;border:none;color:var(--color-gray);cursor:none;transition:color .15s;border-bottom:2px solid transparent;margin-bottom:-1px}
+    .filter-btn.active{color:var(--color-black);border-bottom-color:var(--color-black)}
+    .filter-btn:hover{color:var(--color-black)}
+    .work-grid-wrap{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#ccc transparent}
+    .work-grid{display:grid;grid-template-columns:repeat(3,1fr)}
+    .work-cell{position:relative;cursor:none;border-right:1px solid var(--color-rule);border-bottom:1px solid var(--color-rule);overflow:hidden}
+    .work-cell:nth-child(3n){border-right:none}
+    .work-cell-img{width:100%;aspect-ratio:4/5;overflow:hidden;position:relative;background:#e8e8e8;transition:opacity .2s}
+    .work-cell:hover .work-cell-img{opacity:.86}
+    .work-cell-img img{width:100%;height:100%;object-fit:cover;display:block}
+    .work-cell.landscape .work-cell-img{aspect-ratio:3/2}
+    .work-cell-info{padding:10px 14px 16px}
+    .work-cell-title{font-family:var(--font-display);font-weight:900;font-size:clamp(14px,1.6vw,20px);letter-spacing:.03em;text-transform:uppercase;line-height:1.05}
+    .work-cell-sub{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--color-gray);margin-top:3px}
+    .work-cell.hidden{display:none}
+
+    /* PAGE INFO */
+    #page-info{display:none;flex-direction:column;height:100%;overflow-y:auto}
+    .info-body{padding:72px 28px 80px;max-width:680px}
+    .info-name{font-family:var(--font-display);font-weight:900;font-size:clamp(52px,9vw,110px);line-height:.92;letter-spacing:-.01em;text-transform:uppercase;margin-bottom:52px}
+    .info-name em{display:block;font-style:italic;font-family:var(--font-body);font-weight:400;font-size:clamp(14px,2vw,20px);letter-spacing:.01em;color:var(--color-gray);margin-top:8px;text-transform:none}
+    .info-section{border-top:1px solid var(--color-rule);padding-top:16px;margin-bottom:38px}
+    .info-label{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--color-gray);margin-bottom:12px;user-select:none}
+    .info-text{font-family:var(--font-body);font-size:clamp(15px,1.8vw,20px);font-weight:300;line-height:1.75;color:var(--color-black)}
+    .info-text a{color:var(--color-black);text-underline-offset:3px;cursor:none}
+    .info-services{display:flex;flex-direction:column}
+    .info-service{font-family:var(--font-display);font-weight:900;font-size:clamp(18px,2.4vw,28px);letter-spacing:.04em;text-transform:uppercase;padding:13px 0;border-bottom:1px solid var(--color-rule)}
+    .info-service:first-child{border-top:1px solid var(--color-rule)}
+
+    /* CAROUSEL */
+    #carousel{position:fixed;inset:0;z-index:800;background:var(--color-white);display:none;flex-direction:column}
+    #carousel.open{display:flex}
+    .carousel-nav{height:48px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 28px;border-bottom:1px solid var(--color-rule);flex-shrink:0}
+    #carousel-count{font-size:11px;letter-spacing:.1em;color:var(--color-gray)}
+    .carousel-title-block{text-align:center}
+    #carousel-title{font-family:var(--font-display);font-weight:900;font-size:14px;letter-spacing:.08em;text-transform:uppercase}
+    #carousel-sub{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-gray);margin-top:1px}
+    #carousel-close{font-family:var(--font-display);font-weight:900;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-gray);background:none;border:none;cursor:none;justify-self:end;transition:color .15s}
+    #carousel-close:hover{color:var(--color-black)}
+    #carousel-stage{flex:1;position:relative;background:#111;overflow:hidden;display:flex;align-items:center;justify-content:center}
+    .carousel-slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateX(44px);transition:opacity .36s ease,transform .36s cubic-bezier(.25,.46,.45,.94);pointer-events:none}
+    .carousel-slide.active{opacity:1;transform:none;pointer-events:auto}
+    .carousel-slide.exiting{opacity:0;transform:translateX(-44px)}
+    .carousel-slide img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+    .carousel-arrow{position:absolute;top:50%;transform:translateY(-50%);background:none;border:none;font-family:var(--font-display);font-weight:900;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4);cursor:none;padding:20px 28px;z-index:5;transition:color .15s}
+    .carousel-arrow:hover{color:#fff}
+    #carousel-prev{left:0}
+    #carousel-next{right:0}
+  </style>
+</head>
+
+<body>
+  <svg id="cursor-dice" viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg">
+    <rect x="1.5" y="1.5" width="25" height="25" rx="5" fill="white" stroke="#111" stroke-width="1.6"/>
+    <circle cx="8" cy="8" r="2" fill="#111"/><circle cx="20" cy="8" r="2" fill="#111"/>
+    <circle cx="14" cy="14" r="2" fill="#111"/>
+    <circle cx="8" cy="20" r="2" fill="#111"/><circle cx="20" cy="20" r="2" fill="#111"/>
+  </svg>
+
+  <nav id="nav-home">
+    <div class="nav-home-left"><a href="#work">Work</a></div>
+    <div class="nav-home-right"><a href="#info">Info</a></div>
+  </nav>
+
+  <nav id="nav-inner">
+    <div class="nav-inner-left"><a href="#work" id="nav-link-work" class="active">Work</a></div>
+    <div class="nav-inner-center"><a href="#home">Tomi Morakinyo</a></div>
+    <div class="nav-inner-right">
+      <a href="#info" id="nav-link-info">Info</a>
+      <a href="https://www.instagram.com/randfunctomi/" target="_blank" rel="noopener">Instagram ↗</a>
+    </div>
+  </nav>
+
+  <div id="page-home">
+    <div class="home-hero">
+      <h1 id="home-name">Tomi Morakinyo</h1>
+      <p id="home-tagline">New York City Born, Chicago Based | Engineer by degree, Storyteller by nature</p>
+    </div>
+    <div id="strip-outer"><div id="strip"></div></div>
+  </div>
+
+  <div id="page-work">
+    <div class="filter-bar" id="filter-bar">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="brand">Brand</button>
+      <button class="filter-btn" data-filter="creative-project">Creative Project</button>
+      <button class="filter-btn" data-filter="event">Event</button>
+      <button class="filter-btn" data-filter="graduation">Graduation</button>
+      <button class="filter-btn" data-filter="film">Film</button>
+    </div>
+    <div class="work-grid-wrap"><div class="work-grid" id="work-grid"></div></div>
+  </div>
+
+  <div id="page-info">
+    <div class="info-body">
+      <h1 class="info-name">Tomi<br/>Morakinyo<em>Chicago, IL &nbsp;·&nbsp; Est. 1992</em></h1>
+      <div class="info-section">
+        <p class="info-label">About</p>
+        <p class="info-text">Engineer by degree, photographer by passion. I work across brand, creative, events, and documentary — bringing a precise, considered eye to deeply human moments. Every frame is a chance to show the world as I see it, and to artistically express yours.</p>
+      </div>
+      <div class="info-section">
+        <p class="info-label">Services</p>
+        <div class="info-services">
+          <span class="info-service">Brand</span>
+          <span class="info-service">Creative Projects</span>
+          <span class="info-service">Events</span>
+          <span class="info-service">Graduation</span>
+          <span class="info-service">Film</span>
+        </div>
+      </div>
+      <div class="info-section">
+        <p class="info-label">Contact</p>
+        <p class="info-text">otmorakinyo&#64;gmail.com<br/><a href="https://www.instagram.com/randfunctomi/" target="_blank" rel="noopener">&#64;randfunctomi</a></p>
+      </div>
+    </div>
+  </div>
+
+  <div id="carousel">
+    <div class="carousel-nav">
+      <span id="carousel-count">1 / 1</span>
+      <div class="carousel-title-block"><div id="carousel-title"></div><div id="carousel-sub"></div></div>
+      <button id="carousel-close">Close ✕</button>
+    </div>
+    <div id="carousel-stage">
+      <button class="carousel-arrow" id="carousel-prev">← Prev</button>
+      <button class="carousel-arrow" id="carousel-next">Next →</button>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    'use strict';
+
+    /* ── PROJECT DATA ──
+       BRAND order:        Cold Harbor → Converse → Squared D → Mercedes
+       CREATIVE order:     Tess → Hannah → Synergy → Let Go → Kelsen → Moonlit Dance → Studio Portraits → Aliz Nan → Still Swinging
+       EVENT order:        Synergy → Chukwudinma → Dejardin SS26 → Lucky Girl Market → Houstonfornication
+       GRADUATION:         Graduation
+    */
+    var PROJECTS=[
+      /* ── BRAND ── */
+      {id:1,title:'At the Landing — Cold Harbor',sub:'Ralph Lauren',cat:'brand',tall:true,imgs:["https://lh3.googleusercontent.com/d/1RXxup3cjtx8BVX1C8cZ5D813MMntXdpn","https://lh3.googleusercontent.com/d/1SJgJTJJzcChN-7uOOh-NsE5DWx2RMuVX","https://lh3.googleusercontent.com/d/1S_Tw2kG3BrJPFQ51C6Kc0arE66eIs6Dx","https://lh3.googleusercontent.com/d/1VDSq9iGQF-HuQKsYWMlCqQDzolT4XHk9","https://lh3.googleusercontent.com/d/1Vr12qsVHT--9UYBbwt3Jy1WrI_r9_kIv","https://lh3.googleusercontent.com/d/1Wniz7NzHRZnE5vcU9nQ6y1iamkIKXbSg","https://lh3.googleusercontent.com/d/1X0tJEaxXnEfR4da56-nLJS6B6jM-mmfp","https://lh3.googleusercontent.com/d/1XsDwI0plUZg5GGz48PLbWR4gSurxSOtZ","https://lh3.googleusercontent.com/d/1ZjEVJMFhqfj8dIbJb-oPt49Qwv-AfONT","https://lh3.googleusercontent.com/d/1ZzrY1O46Hd0uMR5i48jjTfklzyGDIbyJ","https://lh3.googleusercontent.com/d/1aM0-XBvDD1Y_Z4ojHbUUqEh212fX4tPe","https://lh3.googleusercontent.com/d/1ap_1GrBaI8uID6c1OHOGa_-fG0bOJBop","https://lh3.googleusercontent.com/d/1cqOXt2lFDxUtGLqga5CUX6QVO1uk5WrQ","https://lh3.googleusercontent.com/d/1eAZBMFceqJy5XR5h7LZrycP7jSC89RFV","https://lh3.googleusercontent.com/d/1eEjcmdZx1ESitY4k-AKVoKV-fi-DQm0d","https://lh3.googleusercontent.com/d/1euGqq7Fjvh8jzVCYBLywv_RdXTN-y3HJ","https://lh3.googleusercontent.com/d/1gUbV0qe2BmLs82oEPRKpEynb-CV4UqL_","https://lh3.googleusercontent.com/d/1gqVBE2Vt-1RWYlMMXHLkJBeFULf7-M9G","https://lh3.googleusercontent.com/d/1iYqnepEGfoq9Ll_FbFzGrZxTXBrv5_kg"]},
+      {id:2,title:'For The Love of Converse',sub:'Converse',cat:'brand',tall:true,imgs:["https://lh3.googleusercontent.com/d/10dxFUKQ_qYofSTo8VDO3zO6K0dAtYa_C","https://lh3.googleusercontent.com/d/11uSPAgnNJ_BAsz1-gzr9BnnozQ4mRP_C","https://lh3.googleusercontent.com/d/14i6L1Z2Rdp9Fu_vZxMcPNLCBNExCr8pR","https://lh3.googleusercontent.com/d/15DXWUvrdklNSewS-ZWepuNxRUt9qmGLx","https://lh3.googleusercontent.com/d/15Jc87dZpBbxeQ5uCepD1vtRz_O1vdXI3","https://lh3.googleusercontent.com/d/15VJvFMDUKZgn6Vx7y6oNXVxG-XKRJKdY","https://lh3.googleusercontent.com/d/18wlZDQHFVbkf7YaIQqnNeyZbcd-ze5fw","https://lh3.googleusercontent.com/d/18xT7h8eSvUdxLimAkyZhMRjgzS28HGve","https://lh3.googleusercontent.com/d/19X0fU5pDCMdOLhhWSNbJKtXM7WfTvRDi","https://lh3.googleusercontent.com/d/19aBF3iBANgQUtVP7ymDM2XamAg0sUSju","https://lh3.googleusercontent.com/d/19tDxilzMsW5rIIBNyLoXjzfLzUctVOsU","https://lh3.googleusercontent.com/d/1BVr5o3JL5IgvtANgyWKld4iQ2KTiPBE1","https://lh3.googleusercontent.com/d/1BaNTQXvGwIRpXu4fb_vVWZ30bqZBTfMZ","https://lh3.googleusercontent.com/d/1BnziP0P34GLqLZw0-QXx_hw_X91ooNHs","https://lh3.googleusercontent.com/d/1CbiGwh1BFqsKYbcbT3KqIWVO0sAEtrZe","https://lh3.googleusercontent.com/d/1CmSjV-wc9GxCHKc3xphe-V-bXmlLc2kP","https://lh3.googleusercontent.com/d/1Fj6zS93EmVBVPmPNxgIasqdo-Qu8aloy","https://lh3.googleusercontent.com/d/1G4uDrBwSMVWjE_7GtlyR0ri3kOlihGmv","https://lh3.googleusercontent.com/d/1GIooh76CqAC9k6yYJLm0TTVeOEXI8WQj","https://lh3.googleusercontent.com/d/1GMpkWua58JbcyZmw5xwJjMNlRHSRvSzW","https://lh3.googleusercontent.com/d/1HQ9U7pHOi7TBk9zKHaADvB_PSz6d_Zn4","https://lh3.googleusercontent.com/d/1I1Knyb7CFriCJpcVfqy9OjE-o_mh1ugX","https://lh3.googleusercontent.com/d/1IYy_6A18HtPEpNkwyt_0VNfOQZXDp57c","https://lh3.googleusercontent.com/d/1KNOjcTYEZK-zrh1KAoG1K9wE6S1HUhxi","https://lh3.googleusercontent.com/d/1Kf_JdBYvoLca-SEUatQG9QozSzpTCVY-","https://lh3.googleusercontent.com/d/1KrUTjUN1gFEhu8yhP7UXS3QTrXujReej","https://lh3.googleusercontent.com/d/1KsMVJv-xtWsAdqQ2SespDpQTmF1HtNbf","https://lh3.googleusercontent.com/d/1L9I11qEPpMP_aHOKXSfuW1gu2p4BzgWz","https://lh3.googleusercontent.com/d/1M17bDEQjzJlOUB4lfUYXBG5Vqbypkc5D","https://lh3.googleusercontent.com/d/1MBv20auELPiRhm10KtyRcFHFNdLl5rq0","https://lh3.googleusercontent.com/d/1NwQc61IzS5vE2ms_678FKGDnD2gOPyvq","https://lh3.googleusercontent.com/d/1Ofs5j4eOB6va86bXFyCng-FrfzfSs5PL","https://lh3.googleusercontent.com/d/1OhsRX6E8qv55IRFkd6ZIXf1-BvCPioXm","https://lh3.googleusercontent.com/d/1Q9HsQEbi9g_u1clMM2SeWEDdzCsVN5m9","https://lh3.googleusercontent.com/d/1QyfcMXIVoxJqQEfecBGjK4N8U1-kNvtS"]},
+      {id:3,title:'Squared D',sub:'Brand',cat:'brand',tall:true,imgs:["https://lh3.googleusercontent.com/d/10Mjh4lwQrcshdAdwP9mHlC-rfV_PyppI","https://lh3.googleusercontent.com/d/1zkr29ld61nLoqSuqS9oW4w73FVNI76pM"]},
+      {id:4,title:'Mercedes Benz Christmas',sub:'Mercedes Benz',cat:'brand',tall:false,imgs:["https://lh3.googleusercontent.com/d/1j1jZ5sbvyNUI001guph0Ue5S6MIWXyAk","https://lh3.googleusercontent.com/d/1jUEFuVIC8tIe9ziUTZYpxeszHVgnzerY","https://lh3.googleusercontent.com/d/1lQX3DLfb7tkIRE5izjis0hzeDgaVcu8e","https://lh3.googleusercontent.com/d/1mmmkcEKCbgljXPF16NyRk5DFmyzMasOL","https://lh3.googleusercontent.com/d/1mwj261pT54nMiBHgkdUgFTn2f0iZvSDx","https://lh3.googleusercontent.com/d/1nfTmErDE-ntqqusv3o2vGYeqy5RE7tJt","https://lh3.googleusercontent.com/d/1rk8M6IQD8h_aJc5sQGDmn24vauf5CaX7","https://lh3.googleusercontent.com/d/1tSEmTBtilDLOZPXw8orxuS9xsWFSy7lT","https://lh3.googleusercontent.com/d/1upiktERX_fQBo8I0T9ZKPfY21ftz4at2","https://lh3.googleusercontent.com/d/1uvPL7-uLRYJWmb996qKXXvdFcUncELHO","https://lh3.googleusercontent.com/d/1vF_vrkbrpa5bl_LmIrz15SYn7Cg34Znr","https://lh3.googleusercontent.com/d/1wLZ-up1g-ngYKqAV3swAyNbFbeRcvGk8","https://lh3.googleusercontent.com/d/1wSBqD1Q0PX-St72L0cuMmVWHcJcNrHJN","https://lh3.googleusercontent.com/d/1wpF_ro_D22CJga9kXphmY4drRbAQQxV-"]},
+
+      /* ── CREATIVE PROJECT ── */
+      {id:5,title:'Tess Test Shoot',sub:'Creative Project',cat:'creative-project',tall:true,imgs:["https://lh3.googleusercontent.com/d/1-ft-B7HnGCE1vizFlFRAHQUtfGc3hgz5","https://lh3.googleusercontent.com/d/11ojZPyr9rCltRJS5bI4kMPxsih4BXvjq"]},
+      {id:6,title:'Hannah Test Shoot',sub:'Creative Project',cat:'creative-project',tall:true,imgs:["https://lh3.googleusercontent.com/d/12G1PEtk6kN5JemAhihkJCHwwLRNXhLQb"]},
+      {id:7,title:'Synergy Test Shoot',sub:'Creative Project',cat:'creative-project',tall:true,imgs:["https://lh3.googleusercontent.com/d/144lZOex8WG8BZX3cE9JRzZXydsx9sP35","https://lh3.googleusercontent.com/d/157XjRPyex3pB1RBoKIWc0suKA3WOVRum","https://lh3.googleusercontent.com/d/16egSaHAPueRk029Tw0zKs9k8BPumfWdC","https://lh3.googleusercontent.com/d/16wHvvQ4DfoOtJ8Hq2Z0zYxY0Fre3QhK2","https://lh3.googleusercontent.com/d/18Pl7OfDx3VEiOcFjfzBzuzo8JF3CjO9O"]},
+      {id:8,title:'Let Go',sub:"Featuring Osa'",cat:'creative-project',tall:true,imgs:["https://lh3.googleusercontent.com/d/18ywua2RR45O_8lsTIcuxN0cs1VTJwtlO","https://lh3.googleusercontent.com/d/19CwcIjkuPvPOZY6gI1heDEKpYHug5Xy5","https://lh3.googleusercontent.com/d/19TDtp539TvtjmYXdgGJvIPUBwp7GMfmh","https://lh3.googleusercontent.com/d/1CS_ouPQ5dtL6M62zw-FhNo_wURzlAx6A","https://lh3.googleusercontent.com/d/1E2Sa0dVlcDbcW_Nn-guxqQ08FSfRwsfz","https://lh3.googleusercontent.com/d/1F5JlAi2e_rlpwUmeXX5rwnlKLMGWd7Dd","https://lh3.googleusercontent.com/d/1GNccjQQeETZw_8xm4Kq0ho-RHQ4_Ob-J","https://lh3.googleusercontent.com/d/1I15Y0QjuVVrdEO9vg5YGdIvQ0Lym02l3","https://lh3.googleusercontent.com/d/1IHGa2LCjLNKjONvuQS7W5alTUvf7poN-","https://lh3.googleusercontent.com/d/1IzpvSYPKDia5vItggi7vsnrHqCS7-CPH","https://lh3.googleusercontent.com/d/1JR_Q427f2oj8WRvd91yA6ZkA29lm476w","https://lh3.googleusercontent.com/d/1KG9ZMfvxerwwP4WqRAAUPBV9Oim_ceay","https://lh3.googleusercontent.com/d/1Mqh5ow7Tp1_rVQmVGNMXXd6lTv7fHkLb"]},
+      {id:9,title:'Kelsen Test Shoot',sub:'Creative Project',cat:'creative-project',tall:true,imgs:["https://lh3.googleusercontent.com/d/1OP167VOLwRAWRUOEs0PVzLEtTPJq3BH1","https://lh3.googleusercontent.com/d/1Of8RORxeM8YFG9IOEblMABajb2skw8CI","https://lh3.googleusercontent.com/d/1OyidjtYz8vYb0t7SwReBKw6JtOPhb3Mx"]},
+      {id:10,title:'Moonlit Dance',sub:'Creative Project',cat:'creative-project',tall:true,imgs:["https://lh3.googleusercontent.com/d/1PawEBmNsZGYpYLSdb3Ff-SEg3ZV3CjPw","https://lh3.googleusercontent.com/d/1R-byZ_jkzDl4OETGWkfxyBKHGlsDDqZq","https://lh3.googleusercontent.com/d/1Rq7FooaxmMFYvw9p-iPAJoagxIrUzhN3","https://lh3.googleusercontent.com/d/1T5W0TxiGCbdKY5ZZi_Dnuln1DcpwBdlL","https://lh3.googleusercontent.com/d/1Ti9Ek48ED0x4Z5go1ZPAkA4OvXwf2Xao","https://lh3.googleusercontent.com/d/1ToTp760bKJt1Txlv2JSd55Td3VujSg9Y","https://lh3.googleusercontent.com/d/1X2B3YLyB7BQ8WqfydRf3Zg3H-2co643W","https://lh3.googleusercontent.com/d/1XJuFUxjPUm1Arqr01BJRGMd69nGIUADV","https://lh3.googleusercontent.com/d/1XphucIG9i09yPXm_3w5AHSaM8khn5Rsc","https://lh3.googleusercontent.com/d/1Yxs3ze099tdx_VYfgZ6iYTZaHHdFQyj_"]},
+      {id:11,title:'Studio Portraits',sub:'Creative Project',cat:'creative-project',tall:true,imgs:["https://lh3.googleusercontent.com/d/1_Ahv5VPs9khK2pkyyJgVP--tIaSpW_Ck","https://lh3.googleusercontent.com/d/1aPv3K1bgcz7U61aZwPiZOqN8Y3WFOr5M","https://lh3.googleusercontent.com/d/1d6gT4Tho_hLdb_eSwMZ1JkeK0L93PhlG","https://lh3.googleusercontent.com/d/1dQRiEnaWdVU5mvWp8RX5MbmDGIB-j2g2","https://lh3.googleusercontent.com/d/1de3NmNjnZURiQX2IrAg1f1nUROI8BR0Q","https://lh3.googleusercontent.com/d/1eKtwIONTVkgHOay7gsWV9_OTj9F5oETA","https://lh3.googleusercontent.com/d/1fI1yJZIunAG2Rp9d12TYUCbfzL2J_lAE","https://lh3.googleusercontent.com/d/1gZLeRJvDXPVu4BwEGOIz-YZHI_1fUSuJ","https://lh3.googleusercontent.com/d/1go3OzlwqZjVWvZkqiw0NKj4nZ1X0_ZNK"]},
+      {id:12,title:'Aliz Nan — Port Au Prince',sub:'Featuring Liz',cat:'creative-project',tall:true,imgs:["https://lh3.googleusercontent.com/d/1iG_UZ7a9NHjs0wOtAJTUzUkjiRX3O09o","https://lh3.googleusercontent.com/d/1iOwOkrqXH9fgLL8-e9Q37CsKZ84JclSx","https://lh3.googleusercontent.com/d/1jmRptOjk8hndj6g9vs0kGhCFq_8jyEDf","https://lh3.googleusercontent.com/d/1kj06IukzWNKWx1nYuivopMIabVCE-dls","https://lh3.googleusercontent.com/d/1lNB_796a7RDB7oKa4YhRbTz48VeRLA4x","https://lh3.googleusercontent.com/d/1lcRXOKOXUlSFoxIuAHoU5MLCn4f4LKis","https://lh3.googleusercontent.com/d/1mMy6SMauppQyNEMO4E3c75YVrbrdl8tX","https://lh3.googleusercontent.com/d/1nrFwBppGCnYKT6VARanZNfoQxGkcDH7P","https://lh3.googleusercontent.com/d/1opxPEDb20zANCAySHFtlUsw_lPHHyXOm","https://lh3.googleusercontent.com/d/1pZMC5eRGTfsgGdq_qUrYbnQzPxYnj3Cv","https://lh3.googleusercontent.com/d/1pa5o6RJa5_i1Ogj0GAl7o6HD7cYrYKIP","https://lh3.googleusercontent.com/d/1qHOkFllgtUNQKvk-VY_ojonR1y_dkOa0"]},
+      {id:13,title:'Still Swinging',sub:'Featuring Penny',cat:'creative-project',tall:true,imgs:["https://lh3.googleusercontent.com/d/1q_SAPaOwmZuVYPtXv-I3gUhgEcT81BiS","https://lh3.googleusercontent.com/d/1sFem_i4iv-r96-7hTHtr7PkcMyaJQHqp","https://lh3.googleusercontent.com/d/1shOu-1FtmkcEiDAlj3p8wqUDUp0o5bjZ","https://lh3.googleusercontent.com/d/1u15PMd0o22iLSeXvjJa7u1syRfoXwDLV","https://lh3.googleusercontent.com/d/1uGy1PCN9LYm4Pezis6HzbenbeLEwAwSC","https://lh3.googleusercontent.com/d/1uw-2a0mEUgzNHH4tYQ5nfboYb1oPo164","https://lh3.googleusercontent.com/d/1v2Kr313R5bTN5JJ_ANQEPJo5cjxZ83Ir","https://lh3.googleusercontent.com/d/1w-k5FQSkc7gUH2zdHs2ig8tHg7IIYbuG","https://lh3.googleusercontent.com/d/1we4AMmxcONVCPpXdU2YgrOFJagZ2b3OQ","https://lh3.googleusercontent.com/d/1xzbigL5o6Q9yAcmviSTKmmkoUtvCG_3V","https://lh3.googleusercontent.com/d/1yHE4UGQNlO-i_axPWAOxh0JlfwJjj5HL","https://lh3.googleusercontent.com/d/1zpfJfOXXJ2PKw5uC8VUbVfO8s9L3-KN9"]},
+
+      /* ── EVENT ── */
+      {id:14,title:'Synergy',sub:'Event',cat:'event',tall:false,imgs:["https://lh3.googleusercontent.com/d/11LekjzHC5xq8q9upVg8prSe8vB_eqCis","https://lh3.googleusercontent.com/d/1337GYmddPeekW7DN83l1rjipD-kYbCCT","https://lh3.googleusercontent.com/d/13YDaqcMhWjrC9sqMS7tbM3cVmMiUiiby","https://lh3.googleusercontent.com/d/14QexUYTiPqXGSfKRXt6igY77chNewokM","https://lh3.googleusercontent.com/d/15AhF-0uJ6Hk2nPt_8Q-RiCFFP90i5nT3","https://lh3.googleusercontent.com/d/17YrBey4P8gCoxeIgH67H7gzyu0Y-5r35"]},
+      {id:15,title:'Chukwudinma Nsofor',sub:'Event',cat:'event',tall:false,imgs:["https://lh3.googleusercontent.com/d/17leGCbQi0FNiWjZYFeLzxc4Sa_cAHKNG","https://lh3.googleusercontent.com/d/18g20LEp2zTcUeXxEObKuKtDtLAemSLJS","https://lh3.googleusercontent.com/d/19EB5yBVAk2lqWlQfpiPItae8KXRWcyRs","https://lh3.googleusercontent.com/d/19HZdBOyJdJasf054-3ER2kS-cC6TGYjw"]},
+      {id:16,title:'Dejardin SS26',sub:'Event',cat:'event',tall:false,imgs:["https://lh3.googleusercontent.com/d/1BNnsFFM_7jQftDKLLxTPgGYbvmSApgV4","https://lh3.googleusercontent.com/d/1CHeHCvAS8hkszIQVECPdvtF7gz6yq9iH","https://lh3.googleusercontent.com/d/1ERaTh2LqZoM9GMj-AMg9lW9IhLp6Bmwt","https://lh3.googleusercontent.com/d/1Fb71bhMxlkaNAI3Rdk98tUoFFSgwkpkn","https://lh3.googleusercontent.com/d/1GcoZY8YaTYXHROm1_xOCvhxaRJRcVQx-","https://lh3.googleusercontent.com/d/1GjHNz4SqFCN3RCbtVnfrkxRuVv21jr6r","https://lh3.googleusercontent.com/d/1GtwGbwnnRMcv3OcMCs_Ckgoq1YsysTPK","https://lh3.googleusercontent.com/d/1H63XJDqBlCBm7f-N2AxMDPyH7-dm5GfC","https://lh3.googleusercontent.com/d/1HZbdBBaQ2VPOjZy5D8bsrePIc45FTeYD","https://lh3.googleusercontent.com/d/1IdZXunsySLXmCVahYjbaJnOsDsCyyquf","https://lh3.googleusercontent.com/d/1JKelIGvkhG3SN2fVqpPP8hcxMc4km-XB","https://lh3.googleusercontent.com/d/1JSxI_E2EazF-aH6Lqla_dEMk2zHsEGqd","https://lh3.googleusercontent.com/d/1Jcy6i-Qzq3Y1Q9OEi0LHkdmYmkTr8PFK","https://lh3.googleusercontent.com/d/1Kpr0wh0z_tsORaq5iXdyWArExlpJC_QI","https://lh3.googleusercontent.com/d/1MWhrTG0lMBngToqJ0Ph8trPPFhGQ3Jei","https://lh3.googleusercontent.com/d/1MaAOsi1Qz42huoAP8B5pdb5rTF7QnFJa","https://lh3.googleusercontent.com/d/1NdIESoAdsLfpvX-vXu4TwipkYA0LQdiZ","https://lh3.googleusercontent.com/d/1OJHECoiyVsgdveQVRG9ej5PjZgw96WAu","https://lh3.googleusercontent.com/d/1O_5funb4knVA-flSMnleGbeEnt6NeaoN","https://lh3.googleusercontent.com/d/1PdYQmUIiYS11LRsXi-1YbVTHpcDbp87h","https://lh3.googleusercontent.com/d/1QDVuzkLneEOBxKdtA_Bgm0cCL_vhsZty","https://lh3.googleusercontent.com/d/1QMH6w6tzH5wqsRhteuFRrqsncpa0SE3d","https://lh3.googleusercontent.com/d/1T4fuk1l1Hphx3a42zQQiMN0dL70iWqRd","https://lh3.googleusercontent.com/d/1TaoRGxsyoU164Tpi3THXhGW_2qNB9ujr","https://lh3.googleusercontent.com/d/1XB9JbWUONGR32jRy_eig5I-QKNa-b8uD","https://lh3.googleusercontent.com/d/1_TYwtocUxKjLxhSyRt1-UCGlF2AuzMr2","https://lh3.googleusercontent.com/d/1cliUyfThTZjMmQHARIQZdZEoWIyLnRPu","https://lh3.googleusercontent.com/d/1d7H1EZ_Wg49IVt_WCDVbpAtQyS3WQz-1","https://lh3.googleusercontent.com/d/1hsujwQkAs5wIQFwuWXWxb2Wnq_wxpODd","https://lh3.googleusercontent.com/d/1jFtYMT873cJx71lCDY5mtqdS8NKT5ZPG","https://lh3.googleusercontent.com/d/1jKjsgfdQuKGW_vUgSthnuQSCrjB5Px4-"]},
+      {id:17,title:'Lucky Girl Market',sub:'Event',cat:'event',tall:true,imgs:["https://lh3.googleusercontent.com/d/1k5GN_VVy85fPdzga6tPQXWpY0sH1dzCz","https://lh3.googleusercontent.com/d/1kkva3gHek2zgJbLvD8zDJvEQXTXnIUwQ","https://lh3.googleusercontent.com/d/1mGMaTgVUXYo5OcvwIAWjquZk9AnoPqZh","https://lh3.googleusercontent.com/d/1mnPbRxju2jtArv02L4W_E_DSai3Ufpcp","https://lh3.googleusercontent.com/d/1oJl5P1gYpuuX_Ff1sdDv9pAE6jIQJJFl","https://lh3.googleusercontent.com/d/1qznXIm7uCNSbwoJuTMOVCEdj9oWapHXZ","https://lh3.googleusercontent.com/d/1riIdMeLYSVELeNuntlQB-n3NH2Mp9s4r","https://lh3.googleusercontent.com/d/1soKB-43kKvzcVgaqkkPKhkJBQJrARs7M","https://lh3.googleusercontent.com/d/1thtb2ygQ3153NUkCBMtAyn6s9XOgAj7Y","https://lh3.googleusercontent.com/d/1u4ZoWLxLoAsSIOrXWhvzaryTuMTQOyCP","https://lh3.googleusercontent.com/d/1uJsk3TrrrFyOuMjn5N_Mwit55V9P9pRW","https://lh3.googleusercontent.com/d/1vxtrtIP8rNs1Qt0AIdNK4D9O_bDFF2wh","https://lh3.googleusercontent.com/d/1x7pmliPj5yDtfNVJT3nLdOWVCCT1GDnz","https://lh3.googleusercontent.com/d/1xw7H35i_bP9LWDBgPshyhDF-YedVwu_D"]},
+      {id:18,title:'Houstonfornication',sub:'Event',cat:'event',tall:false,imgs:["https://lh3.googleusercontent.com/d/1zMmzF9XXOeoxyHsWiKvjJ0N_l0tsUKup","https://lh3.googleusercontent.com/d/1zslQ67xpmKdXtBk7j1zBwXbkomeXCSTJ"]},
+
+      /* ── GRADUATION ── */
+      {id:19,title:'Graduation',sub:'Graduation',cat:'graduation',tall:true,imgs:["https://lh3.googleusercontent.com/d/10wVXoMkGgdsdEvCsz4xvxB5za0YlwvMA","https://lh3.googleusercontent.com/d/14vvlHY-ywueWUt-QcWgIrQZpW95vCz-b","https://lh3.googleusercontent.com/d/16O_CM-SdtRd_uUxRJ242H9uZmSw1XNMj","https://lh3.googleusercontent.com/d/1AWfIo52wGaAbiFJI5JcnGoC3xmHDhBiW","https://lh3.googleusercontent.com/d/1AXZS5YwoQh2fcVxLoGKyOK-L43QGY4J3","https://lh3.googleusercontent.com/d/1DFEuLsVPmkEsqKtr_QPapPXsLif7EA9D","https://lh3.googleusercontent.com/d/1DdFJsHuUurqfQzf_6rR442rHRIIgX_00","https://lh3.googleusercontent.com/d/1Ibbn32lSRjXr-0DDy0znpoVjAbnH9sCN","https://lh3.googleusercontent.com/d/1KEaQtd24vGf6I4xSC-EscNCGrb2tPpJg","https://lh3.googleusercontent.com/d/1Sg94RkAJqE3HfjLCjCNM-5MVZTDCFG7r","https://lh3.googleusercontent.com/d/1U_o9QO_MWEWA4uRvWLJPlmQhDHEk09HP","https://lh3.googleusercontent.com/d/1uv0BEWxzi2YKztZK_ek5m28ffa45K-3N","https://lh3.googleusercontent.com/d/1zwnjCxxt-WB5eDJ13bpiaPwYQhzITwoL"]}
+    ];
+
+    /* ── DOM REFS ── */
+    var dom={
+      cursorDice:document.getElementById('cursor-dice'),
+      navHome:document.getElementById('nav-home'),
+      navInner:document.getElementById('nav-inner'),
+      navLinkWork:document.getElementById('nav-link-work'),
+      navLinkInfo:document.getElementById('nav-link-info'),
+      pageHome:document.getElementById('page-home'),
+      pageWork:document.getElementById('page-work'),
+      pageInfo:document.getElementById('page-info'),
+      strip:document.getElementById('strip'),
+      stripOuter:document.getElementById('strip-outer'),
+      workGrid:document.getElementById('work-grid'),
+      filterBar:document.getElementById('filter-bar'),
+      carousel:document.getElementById('carousel'),
+      carouselStage:document.getElementById('carousel-stage'),
+      carouselTitle:document.getElementById('carousel-title'),
+      carouselSub:document.getElementById('carousel-sub'),
+      carouselCount:document.getElementById('carousel-count'),
+      carouselClose:document.getElementById('carousel-close'),
+      carouselPrev:document.getElementById('carousel-prev'),
+      carouselNext:document.getElementById('carousel-next')
+    };
+
+    var carouselIndex=0;
+
+    /* ── PHOTO STRIP ── */
+    function buildStrip(){
+      dom.strip.innerHTML='';
+      var sh=Math.round(window.innerHeight*.31);
+      dom.stripOuter.style.height=(sh+10)+'px';
+      PROJECTS.forEach(function(p){
+        var h=p.tall?sh:Math.round(sh*.70);
+        var w=p.tall?Math.round(h*.72):Math.round(h*1.45);
+        var el=document.createElement('div');
+        el.className='strip-thumb';
+        el.style.cssText='width:'+w+'px;height:'+h+'px';
+        el.innerHTML='<img src="'+p.imgs[0]+'" alt="'+p.title+'" loading="lazy"/><div class="strip-overlay"><div><div class="strip-overlay-title">'+p.title+'</div><div class="strip-overlay-sub">'+p.sub+'</div></div></div>';
+        el.addEventListener('click',function(){openCarousel(p)});
+        el.addEventListener('mouseenter',function(){dom.cursorDice.classList.add('enlarged')});
+        el.addEventListener('mouseleave',function(){dom.cursorDice.classList.remove('enlarged')});
+        dom.strip.appendChild(el);
+      });
+    }
+
+    /* ── WORK GRID ── */
+    function buildGrid(){
+      dom.workGrid.innerHTML='';
+      PROJECTS.forEach(function(p){
+        var c=document.createElement('div');
+        c.className='work-cell'+(p.tall?'':' landscape');
+        c.dataset.filter=p.cat;
+        c.innerHTML='<div class="work-cell-img"><img src="'+p.imgs[0]+'" alt="'+p.title+'" loading="lazy"/></div><div class="work-cell-info"><div class="work-cell-title">'+p.title+'</div><div class="work-cell-sub">'+p.sub+'</div></div>';
+        c.addEventListener('click',function(){openCarousel(p)});
+        c.addEventListener('mouseenter',function(){dom.cursorDice.classList.add('enlarged')});
+        c.addEventListener('mouseleave',function(){dom.cursorDice.classList.remove('enlarged')});
+        dom.workGrid.appendChild(c);
+      });
+    }
+
+    /* ── FILTER ── */
+    dom.filterBar.addEventListener('click',function(e){
+      var btn=e.target.closest('.filter-btn');
+      if(!btn)return;
+      dom.filterBar.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active')});
+      btn.classList.add('active');
+      var cat=btn.dataset.filter;
+      dom.workGrid.querySelectorAll('.work-cell').forEach(function(c){
+        c.classList.toggle('hidden',cat!=='all'&&c.dataset.filter!==cat);
+      });
+    });
+
+    /* ── CAROUSEL ── */
+    function openCarousel(p){
+      dom.carouselTitle.textContent=p.title;
+      dom.carouselSub.textContent=p.sub;
+      carouselIndex=0;
+      dom.carouselStage.querySelectorAll('.carousel-slide').forEach(function(s){s.remove()});
+      p.imgs.forEach(function(url,i){
+        var s=document.createElement('div');
+        s.className='carousel-slide'+(i===0?' active':'');
+        s.innerHTML='<img src="'+url+'" alt="'+p.title+' '+(i+1)+'" loading="'+(i<2?'eager':'lazy')+'"/>';
+        dom.carouselStage.insertBefore(s,dom.carouselPrev);
+      });
+      updateCount(p.imgs.length);
+      dom.carousel.classList.add('open');
+    }
+    function stepCarousel(d){
+      var ss=Array.from(dom.carouselStage.querySelectorAll('.carousel-slide'));
+      var cur=ss.findIndex(function(s){return s.classList.contains('active')});
+      var nxt=(cur+d+ss.length)%ss.length;
+      ss[cur].classList.remove('active');ss[cur].classList.add('exiting');
+      setTimeout(function(){ss[cur].classList.remove('exiting')},380);
+      ss[nxt].classList.add('active');
+      carouselIndex=nxt;updateCount(ss.length);
+    }
+    function updateCount(n){dom.carouselCount.textContent=(carouselIndex+1)+' / '+n}
+    function closeCarousel(){dom.carousel.classList.remove('open')}
+
+    dom.carouselPrev.addEventListener('click',function(){stepCarousel(-1)});
+    dom.carouselNext.addEventListener('click',function(){stepCarousel(1)});
+    dom.carouselClose.addEventListener('click',closeCarousel);
+
+    /* ── ROUTING ── */
+    var pages={'page-home':dom.pageHome,'page-work':dom.pageWork,'page-info':dom.pageInfo};
+    function showPage(id){Object.keys(pages).forEach(function(k){pages[k].style.display=k===id?'flex':'none'})}
+    function goHome(){showPage('page-home');dom.navHome.style.display='';dom.navInner.style.display='none';document.body.style.overflow='hidden'}
+    function goWork(){showPage('page-work');dom.navHome.style.display='none';dom.navInner.style.display='grid';dom.navLinkWork.classList.add('active');dom.navLinkInfo.classList.remove('active');document.body.style.overflow='hidden'}
+    function goInfo(){showPage('page-info');dom.navHome.style.display='none';dom.navInner.style.display='grid';dom.navLinkInfo.classList.add('active');dom.navLinkWork.classList.remove('active');document.body.style.overflow='auto'}
+
+    document.addEventListener('click',function(e){
+      var link=e.target.closest('a[href^="#"]');
+      if(!link)return;
+      var h=link.getAttribute('href');
+      if(h==='#home'){e.preventDefault();goHome()}
+      if(h==='#work'){e.preventDefault();goWork()}
+      if(h==='#info'){e.preventDefault();goInfo()}
+    });
+
+    /* ── CURSOR ── */
+    document.addEventListener('mousemove',function(e){dom.cursorDice.style.left=e.clientX+'px';dom.cursorDice.style.top=e.clientY+'px'});
+    document.querySelectorAll('a,button').forEach(function(el){
+      el.addEventListener('mouseenter',function(){dom.cursorDice.classList.add('enlarged')});
+      el.addEventListener('mouseleave',function(){dom.cursorDice.classList.remove('enlarged')});
+    });
+
+    /* ── KEYBOARD ── */
+    document.addEventListener('keydown',function(e){
+      if(dom.carousel.classList.contains('open')){
+        if(e.key==='ArrowRight'){stepCarousel(1);return}
+        if(e.key==='ArrowLeft'){stepCarousel(-1);return}
+        if(e.key==='Escape'){closeCarousel();return}
+      }
+    });
+
+    /* ── HORIZONTAL SCROLL ── */
+    dom.stripOuter.addEventListener('wheel',function(e){
+      e.preventDefault();
+      dom.stripOuter.scrollLeft+=e.deltaY+e.deltaX;
+    },{passive:false});
+
+    /* ── INIT ── */
+    buildStrip();
+    buildGrid();
+    window.addEventListener('resize',buildStrip);
+  })();
+  </script>
+</body>
+</html>
